@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
 import tailwdindcss from '@tailwindcss/vite'
 
 export default defineConfig({
@@ -8,11 +9,16 @@ export default defineConfig({
     tailwdindcss(),
 
   ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   server: {
-    host: true, 
+    host: true,
     port: 5173,
     watch: {
-      usePolling: true, 
+      usePolling: true,
     }
   }
 })
