@@ -1,0 +1,11 @@
+services:
+  app-prod:
+    container_name: cartel-coches-prod
+    build:
+      context: .
+      dockerfile: .docker/prod/Dockerfile
+    ports:
+      - "8080:80" 
+    restart: always
+    environment:
+      - NODE_ENV=production

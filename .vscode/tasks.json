@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🟢 Docker: DEV (Arrancar)",
+      "type": "shell",
+      "command": "docker compose up",
+      "detail": "Inicia el entorno de desarrollo con Hot Reload en http://localhost:5173",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "dev-run"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "🟠 Docker: DEV (Reconstruir)",
+      "type": "shell",
+      "command": "docker compose up --build",
+      "detail": "Fuerza la reinstalación de node_modules. Úsalo si instalaste nuevas librerías.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "🚀 Docker: PROD (Simular Producción)",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.prod.yml up --build",
+      "detail": "Compila y sirve la app optimizada con Nginx en http://localhost:8080",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "group": "build"
+    },
+    {
+      "label": "YW Docker: APAGAR Todo",
+      "type": "shell",
+      "command": "docker compose down && docker compose -f docker-compose.prod.yml down",
+      "detail": "Apaga y elimina todos los contenedores de este proyecto",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    }
+  ]
+}
