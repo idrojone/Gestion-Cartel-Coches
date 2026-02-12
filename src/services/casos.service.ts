@@ -82,6 +82,23 @@ class CasosService {
         const response = await this.getAll();
         return response.data?.filter(c => c.Acción === accion) ?? [];
     }
+
+    /** Enviar nuevo caso al Web App (si el Web App lo soporta por POST) */
+    async submitCase(payload: Record<string, unknown>): Promise<any> {
+        const url = API_CONFIG.BASE_URL;
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
+        } catch (err) {
+            console.error('[CasosService] submitCase error', err);
+            throw err;
+        }
+    }
 }
 
 export const casosService = new CasosService();

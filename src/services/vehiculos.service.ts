@@ -46,6 +46,26 @@ class VehiculosService {
             v.Marca.toLowerCase().includes(marca.toLowerCase())
         ) ?? [];
     }
+
+    /** Obtener marcas únicas ordenadas */
+    async getBrands(): Promise<string[]> {
+        const response = await this.getAll();
+        const set = new Set<string>();
+        response.data?.forEach(v => {
+            if (v.Marca) set.add(v.Marca);
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    /** Obtener modelos únicos por marca (nombre del modelo) */
+    async getModelsByMarca(marca: string): Promise<string[]> {
+        const response = await this.getAll();
+        const set = new Set<string>();
+        response.data?.forEach(v => {
+            if (v.Marca === marca && v.Modelo) set.add(v.Modelo);
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
 }
 
 export const vehiculosService = new VehiculosService();
