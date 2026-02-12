@@ -58,14 +58,24 @@ class ApiService {
         const url = this.buildUrl(params);
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: 'GET',
+                redirect: 'follow',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
 
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
             }
 
-            const data: T = await response.json();
-            return data;
+            const text = await response.text();
+            try {
+                return JSON.parse(text) as T;
+            } catch {
+                throw new Error(`Respuesta no es JSON válido: ${text.substring(0, 200)}`);
+            }
         } catch (error) {
             console.error('[ApiService] Error en la petición:', error);
             throw error;

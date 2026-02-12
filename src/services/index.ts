@@ -32,3 +32,7 @@ export type { Modelo } from './modelos.service';
 // Casos
 export { casosService } from './casos.service';
 export type { Caso, EstadoViabilidad, AccionCaso } from './casos.service';
+
+// Marcas
+export { marcasService } from './marcas.service';
+export type { Marca } from './marcas.service';
