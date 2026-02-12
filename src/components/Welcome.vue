@@ -12,8 +12,7 @@
     </p>
 
     <button type="button" class="mt-4 rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-      Mire si Usted esta afectado en 
+      Mire si usted esta afectado 
     </button>
-
   </section>
 </template>

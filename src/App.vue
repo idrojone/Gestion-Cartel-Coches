@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { AppHeader, AppFooter } from '@/components/layout'
-import Welcome from '@/components/Welcome.vue'
 </script>
 
 <template>
@@ -8,7 +7,7 @@ import Welcome from '@/components/Welcome.vue'
     <AppHeader />
 
     <main class="flex-1">
-      <Welcome />
+      <router-view />
     </main>
 
     <AppFooter />
