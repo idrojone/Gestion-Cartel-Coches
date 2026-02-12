@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import VehiculoForm from './components/VehiculoForm.vue';
+import { AppHeader, AppFooter } from '@/components/layout'
 </script>
 
 <template>
-    <VehiculoForm />
+  <div class="flex min-h-screen flex-col bg-gray-50">
+    <AppHeader />
+
+    <main class="flex-1">
+      <router-view />
+    </main>
+
+    <AppFooter />
+  </div>
 </template>
