@@ -19,6 +19,7 @@ export const API_CONFIG = {
         MARCAS: 'Marcas',
         DASHBOARD: 'Dashboard',
         CASOS: 'Casos',
+        COCHES_COMPACT: 'coches_compact',
     } as const,
 } as const;
 
