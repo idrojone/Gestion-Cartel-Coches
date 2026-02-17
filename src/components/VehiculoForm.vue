@@ -1,4 +1,23 @@
+<!-- 
+  @component VehiculoForm
+  @description Componente principal del formulario para comprobar la elegibilidad de un vehículo en la reclamación del Cártel de Coches.
+  
+  Flujo de usuario:
+  1. Paso 1: Selección de Marca.
+  2. Paso 2: Selección de Modelo (filtrado por marca).
+  3. Paso 3: Selección de Año de matriculación (2006-2013).
+  4. Resultado: Muestra si el vehículo es elegible o no.
+
+  Características:
+  - Carga datos dinámicamente desde Google Sheets (API).
+  - Gestión de estado por pasos (Wizard).
+  - Validación de campos obligatorios.
+  - Feedback visual de carga y errores.
+  - Animaciones de transición entre pasos.
+-->
+
 <script setup lang="ts">
+import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 import { ref, computed, onMounted } from 'vue';
 import { API_CONFIG, apiService } from '@/services';
 import BaseSelect from './BaseSelect.vue';
@@ -6,30 +25,62 @@ import BaseButton from './BaseButton.vue';
 import BaseProgressBar from './BaseProgressBar.vue';
 import EligibilityResult from './EligibilityResult.vue';
 
+/**
+ * Interfaz que representa una fila de datos crudos del Excel/Google Sheets.
+ * @interface CarDataRow
+ */
 interface CarDataRow {
     _row: number;
     marca: string;
+    // Las claves dinámicas como 'modelos/...'
     [key: string]: string | number; 
 }
 
+/**
+ * Interfaz para las selecciones del usuario en el formulario.
+ * @interface Selections
+ */
 interface Selections {
     marca: string;
     modelo: string;
     anio: string;
 }
 
+// --- Estado del Componente ---
+
+/** Paso actual del formulario (1, 2 o 3) */
 const step = ref(1);
+
+/** Indica si se están cargando los datos iniciales */
 const loading = ref(false);
+
+/** Almacena mensajes de error (ej. fallo de red) */
 const error = ref<string | null>(null);
+
+/** Datos crudos de coches cargados desde la API */
 const rawData = ref<CarDataRow[]>([]);
+
+/** Selección actual del usuario */
 const selections = ref<Selections>({
     marca: '',
     modelo: '',
     anio: '',
 });
 
+/** 
+ * Estado de la comprobación de elegibilidad.
+ * - 'idle': Estado inicial, formulario activo.
+ * - 'checking': Simulando comprobación (loading).
+ * - 'affected': El vehículo es elegible.
+ * - 'not_affected': El vehículo no es elegible.
+ */
 const checkStatus = ref<'idle' | 'checking' | 'affected' | 'not_affected'>('idle');
 
+// --- Propiedades Computadas ---
+
+/**
+ * Obtiene la lista única de marcas disponibles, ordenadas alfabéticamente.
+ */
 const marcasOptions = computed(() => {
     return rawData.value
         .map((row) => row.marca)
@@ -37,6 +88,10 @@ const marcasOptions = computed(() => {
         .sort();
 });
 
+/**
+ * Obtiene los modelos correspondientes a la marca seleccionada.
+ * Busca la fila de la marca y extrae las claves que empiezan por 'modelos/'.
+ */
 const modelosOptions = computed(() => {
     if (!selections.value.marca) return [];
 
@@ -53,6 +108,9 @@ const modelosOptions = computed(() => {
     return models.sort();
 });
 
+/**
+ * Genera el rango de años afectados (2006-2013) en orden descendente.
+ */
 const aniosOptions = computed(() => {
     const years: number[] = [];
     for (let y = 2013; y >= 2006; y--) {
@@ -65,6 +123,11 @@ const progressPercentage = computed(() => {
     return (step.value / 3) * 100;
 });
 
+// --- Métodos ---
+
+/**
+ * Carga los datos de coches desde el servicio API al montar el componente.
+ */
 const fetchData = async () => {
     loading.value = true;
     error.value = null;
@@ -91,6 +154,11 @@ const prevStep = () => {
     if (step.value > 1) step.value--;
 };
 
+/**
+ * Maneja el envío final del formulario.
+ * Simula una comprobación asíncrona y determina el estado final.
+ * Lógica actual: Si el modelo NO es 'OTRO', se considera afectado.
+ */
 const handleSubmit = () => {
     checkStatus.value = 'checking';
 
@@ -103,6 +171,9 @@ const handleSubmit = () => {
     }, 1500);
 };
 
+/**
+ * Reinicia el formulario a su estado inicial para realizar una nueva comprobación.
+ */
 const resetCheck = () => {
     checkStatus.value = 'idle';
     step.value = 1;
@@ -122,10 +193,7 @@ onMounted(() => {
         <BaseProgressBar :percentage="progressPercentage" />
 
         <div v-if="loading" class="flex justify-center p-8">
-             <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+             <ArrowPathIcon class="animate-spin h-8 w-8 text-indigo-600" />
         </div>
 
         <div v-else-if="error" class="text-center p-8">
