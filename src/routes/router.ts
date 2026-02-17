@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AuthForm from '@/components/AuthForm.vue'
 import Home from '../pages/Home.vue'
+import { authGuard } from '@/guards/auth.guard'
 
 const routes = [
     {
@@ -12,6 +13,7 @@ const routes = [
         path: '/auth',
         name: 'Auth',
         component: AuthForm,
+        beforeEnter: authGuard,
     }
 ]
 
