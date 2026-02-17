@@ -17,22 +17,10 @@ export type {
     SheetsListResponse,
 } from './api.service';
 
-// Vehiculos
-export { vehiculosService } from './vehiculos.service';
-export type { Vehiculo } from './vehiculos.service';
-
 // Clientes
 export { clientesService } from './clientes.service';
 export type { Cliente } from './clientes.service';
 
-// Modelos
-export { modelosService } from './modelos.service';
-export type { Modelo } from './modelos.service';
-
-// Casos
-export { casosService } from './casos.service';
-export type { Caso, EstadoViabilidad, AccionCaso } from './casos.service';
-
-// Marcas
-export { marcasService } from './marcas.service';
-export type { Marca } from './marcas.service';
+// Coches
+export { cochesService } from './coches.service';
+export type { Coche } from './coches.service';

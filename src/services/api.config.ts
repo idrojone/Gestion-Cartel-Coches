@@ -13,12 +13,8 @@ export const API_CONFIG = {
 
     /** Nombres exactos de las hojas en el Spreadsheet */
     SHEETS: {
-        VEHICULOS: 'Vehiculos',
         CLIENTES: 'Clientes',
-        MODELOS: 'Modelos',
-        MARCAS: 'Marcas',
         DASHBOARD: 'Dashboard',
-        CASOS: 'Casos',
         COCHES_COMPACT: 'coches_compact',
     } as const,
 } as const;

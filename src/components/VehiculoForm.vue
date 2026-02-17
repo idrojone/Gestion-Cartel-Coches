@@ -19,22 +19,13 @@
 <script setup lang="ts">
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 import { ref, computed, onMounted } from 'vue';
-import { API_CONFIG, apiService } from '@/services';
+import { cochesService, type Coche } from '@/services';
 import BaseSelect from './BaseSelect.vue';
 import BaseButton from './BaseButton.vue';
 import BaseProgressBar from './BaseProgressBar.vue';
 import EligibilityResult from './EligibilityResult.vue';
 
-/**
- * Interfaz que representa una fila de datos crudos del Excel/Google Sheets.
- * @interface CarDataRow
- */
-interface CarDataRow {
-    _row: number;
-    marca: string;
-    // Las claves dinámicas como 'modelos/...'
-    [key: string]: string | number; 
-}
+
 
 /**
  * Interfaz para las selecciones del usuario en el formulario.
@@ -58,7 +49,7 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 
 /** Datos crudos de coches cargados desde la API */
-const rawData = ref<CarDataRow[]>([]);
+const rawData = ref<Coche[]>([]);
 
 /** Selección actual del usuario */
 const selections = ref<Selections>({
@@ -132,7 +123,7 @@ const fetchData = async () => {
     loading.value = true;
     error.value = null;
     try {
-        const response = await apiService.getSheetData<CarDataRow>(API_CONFIG.SHEETS.COCHES_COMPACT);
+        const response = await cochesService.getAll();
         if (response.data) {
             rawData.value = response.data;
         } else {
