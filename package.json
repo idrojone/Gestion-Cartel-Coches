@@ -9,8 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "pinia": "^3.0.4",
     "sweetalert2": "^11.26.18",
+=======
+    "@heroicons/vue": "^2.2.0",
+>>>>>>> 2575c105ac4e1937ae24dbbc0c7e42c8d37ff4ef
     "vue": "^3.5.25",
     "vue-router": "^4.6.4"
   },

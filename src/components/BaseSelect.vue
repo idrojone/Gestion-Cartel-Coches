@@ -1,19 +1,57 @@
+<!-- 
+  @component BaseSelect
+  @description Componente reutilizable para selectores (dropdowns) con estilos personalizados y soporte para modo oscuro.
+  
+  Características:
+  - Soporta opciones simples (strings/numbers) u objetos con { value, label }.
+  - Estilizado con Tailwind CSS.
+  - Accesible (labels, aria-invalid, aria-describedby).
+  - Estado de error visual y mensaje de validación.
+-->
+
 <script setup lang="ts">
 import { computed } from 'vue';
+import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 
+/**
+ * Interfaz para definir una opción estructurada.
+ * @interface Option
+ */
 interface Option {
     value: string | number;
     label: string;
 }
 
+/**
+ * Propiedades del componente.
+ * @interface Props
+ */
 interface Props {
+    /** Etiqueta visible del campo */
     label: string;
+    
+    /** Valor seleccionado (v-model) */
     modelValue: string | number;
+    
+    /** ID único para accesibilidad (label for, aria-describedby) */
     id: string;
+    
+    /** 
+     * Lista de opciones. 
+     * Puede ser un array de primitivos (string/number) o de objetos `Option`.
+     */
     options: (string | number | Option)[];
+    
+    /** Mensaje de error para mostrar estado inválido */
     error?: string;
+    
+    /** Texto placeholder de la primera opción deshabilitada */
     placeholder?: string;
+    
+    /** Indica si el campo es obligatorio (añade asterisco y atributo required) */
     required?: boolean;
+    
+    /** Deshabilita la interacción con el select */
     disabled?: boolean;
 }
 
@@ -23,12 +61,23 @@ const props = withDefaults(defineProps<Props>(), {
     disabled: false,
 });
 
+/**
+ * Eventos emitidos por el componente.
+ * @event update:modelValue Emite el nuevo valor seleccionado.
+ */
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string | number): void;
 }>();
 
+/**
+ * ID computado para el mensaje de error, usado para aria-describedby.
+ */
 const errorId = computed(() => `${props.id}-error`);
 
+/**
+ * Normaliza las opciones de entrada para que siempre sean objetos { value, label }.
+ * Permite pasar arrays simples ['Opción 1', 'Opción 2'] facilitando el uso.
+ */
 const normalizedOptions = computed<Option[]>(() => {
     return props.options.map((opt) => {
         if (typeof opt === 'string' || typeof opt === 'number') {
@@ -38,6 +87,10 @@ const normalizedOptions = computed<Option[]>(() => {
     });
 });
 
+/**
+ * Manejador del evento change nativo.
+ * Emite el valor actualizado al padre.
+ */
 const updateValue = (event: Event) => {
     const target = event.target as HTMLSelectElement;
     emit('update:modelValue', target.value);
@@ -75,9 +128,7 @@ const updateValue = (event: Event) => {
             
             <!-- Chevron Icon -->
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
+                <ChevronDownIcon class="h-4 w-4" aria-hidden="true" />
             </div>
         </div>
 

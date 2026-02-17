@@ -35,7 +35,7 @@ const handleLogout = () => {
           </svg>
         </div>
         <span class="text-lg font-bold tracking-tight text-gray-900">
-          Cartel Coches
+          F*** Cartel Coches
         </span>
       </RouterLink>
 

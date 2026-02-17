@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Welcome from '@/components/Welcome.vue'
 import AuthForm from '@/components/AuthForm.vue'
+import Home from '../pages/Home.vue'
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: Welcome,
+        component: Home,
     },
     {
         path: '/auth',
