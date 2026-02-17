@@ -70,7 +70,7 @@ const handleAction = async () => {
         // Usuario logueado: Guardar directamente
         saveCase(caseData);
     } else {
-        // Usuario NO logueado: Redirigir a Registro
+        // Usuario NO logueado: Guardar datos temporalmente y redirigir
         const result = await Swal.fire({
             title: '¿Quieres reclamar tu indemnización?',
             text: "Para continuar con el proceso y guardar tu consulta, necesitas registrarte.",
@@ -82,6 +82,8 @@ const handleAction = async () => {
         });
 
         if (result.isConfirmed) {
+            // Guardar datos en localStorage para recuperarlos tras loguearse
+            localStorage.setItem('pendingCase', JSON.stringify(caseData));
             router.push('/auth');
         } else if (result.dismiss === Swal.DismissReason.cancel) {
             emit('reset');

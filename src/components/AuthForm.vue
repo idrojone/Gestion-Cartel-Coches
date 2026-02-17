@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import BaseInput from './BaseInput.vue'
 import BaseButton from './BaseButton.vue'
 import { clientesService } from '@/services/clientes.service'
+import { dashboardService } from '@/services/dashboard.service'
+import { userStore } from '@/store/store'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
@@ -81,6 +83,10 @@ const onLogin = async () => {
         timer: 1500,
         showConfirmButton: false
       })
+      
+      // Chequear si había un caso pendiente
+      await checkPendingCase()
+
       router.push('/')
     } else {
       Swal.fire({
@@ -145,6 +151,10 @@ const onRegister = async () => {
         timer: 1500,
         showConfirmButton: false
       })
+
+      // Chequear si había un caso pendiente
+      await checkPendingCase()
+
       router.push('/')
     } else {
       Swal.fire({
@@ -162,6 +172,48 @@ const onRegister = async () => {
     console.error(error)
   } finally {
     isLoading.value = false
+  }
+}
+
+/**
+ * Verifica si hay un caso pendiente de guardar en localStorage.
+ * Si existe, lo asigna al usuario actual y lo envía al dashboard.
+ */
+const checkPendingCase = async () => {
+  const pendingCaseJson = localStorage.getItem('pendingCase');
+  if (pendingCaseJson) {
+      try {
+          const store = userStore();
+          const user = store.getUser;
+
+          if (!user) return;
+
+          const pendingCase = JSON.parse(pendingCaseJson);
+          
+          // Actualizar datos del usuario en el caso pendiente
+          pendingCase.Nombre = user.Nombre;
+          pendingCase.DNI = user.DNI;
+          pendingCase.ID_Cliente = user.ID_Cliente;
+
+          // Guardar en Dashboard
+          const response = await dashboardService.createCase(pendingCase);
+
+          if (response.status === 'ok') {
+              await Swal.fire({
+                  icon: 'success',
+                  title: '¡Consulta Guardada!',
+                  text: `Hemos registrado tu coche automáticamente tras el inicio de sesión. ID Caso: ${response.idCaso}`,
+                  timer: 4000,
+                  showConfirmButton: false
+              });
+              localStorage.removeItem('pendingCase');
+          } else {
+              console.error('Error al guardar caso pendiente:', response);
+          }
+
+      } catch (e) {
+          console.error('Error procesando caso pendiente:', e);
+      }
   }
 }
 
