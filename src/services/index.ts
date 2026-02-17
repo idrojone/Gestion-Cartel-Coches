@@ -24,3 +24,7 @@ export type { Cliente } from './clientes.service';
 // Coches
 export { cochesService } from './coches.service';
 export type { Coche } from './coches.service';
+
+// Dashboard
+export { dashboardService } from './dashboard.service';
+export type { DashboardCase, DashboardResponse } from './dashboard.service';

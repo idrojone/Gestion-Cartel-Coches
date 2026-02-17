@@ -60,6 +60,95 @@ function doGet(e) {
   }
 }
 
+/**
+ * Punto de entrada principal para peticiones POST
+ */
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.tryLock(10000); // Esperar hasta 10s para evitar condiciones de carrera
+
+  try {
+    const postData = JSON.parse(e.postData.contents);
+    const action = postData.action;
+    const sheetName = postData.sheet;
+    const data = postData.data;
+
+    if (action !== 'insert') {
+      throw new Error('Acción no soportada o no especificada.');
+    }
+
+    if (!sheetName) {
+      throw new Error('Nombre de hoja no especificado.');
+    }
+
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(sheetName);
+
+    if (!sheet) {
+      throw new Error(`La hoja "${sheetName}" no existe.`);
+    }
+
+    let result = {};
+
+    // ─── LÓGICA ESPECÍFICA PARA DASHBOARD ───
+    if (sheetName === 'Dashboard') {
+        const lastRow = sheet.getLastRow();
+        // Generar ID Caso: V-{timestamp} para simplicidad y unicidad
+        // Opcional: Podríamos leer el último ID y sumar 1, pero requiere más lógica.
+        const idCaso = `V-${Date.now().toString().slice(-6)}`; 
+        const fechaActual = new Date();
+
+        // Mapeo estricto de columnas
+        // Orden esperado en Dashboard:
+        // ID Caso | Cliente | DNI | Vehículo | Marca | Fecha Compra (Est) | Estado Viabilidad | Acción | ID_Cliente | Matricula | Modelo | Ano
+        
+        const rowData = [
+            idCaso,                             // ID Caso
+            data.Nombre || '',                  // Cliente
+            data.DNI || '',                     // DNI
+            `${data.Marca} - ${data.Modelo} ${data.Anio}`, // Vehículo
+            data.Marca || '',                   // Marca
+            `01/06/${data.Anio}`,               // Fecha Compra (Est)
+            data.Estado || '',                  // Estado Viabilidad
+            data.Accion || '',                  // Acción
+            data.ID_Cliente || '',              // ID_Cliente
+            data.Matricula || '',               // Matricula
+            data.Modelo || '',                  // Modelo
+            data.Anio || ''                     // Ano
+        ];
+
+        sheet.appendRow(rowData);
+        result = { idCaso: idCaso, row: lastRow + 1 };
+    
+    // ─── LÓGICA GENÉRICA PARA OTRAS HOJAS (ej. Clientes) ───
+    } else {
+        const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const rowData = headers.map(header => {
+            return data[header] || '';
+        });
+        
+        // Si hay cabeceras que no coinciden con las keys del objeto data, se guardarán vacías.
+        // Si data tiene keys que no están en headers, se ignoran.
+        
+        sheet.appendRow(rowData);
+        result = { row: sheet.getLastRow() };
+    }
+
+    return jsonResponse_({
+      status: 'ok',
+      ...result
+    });
+
+  } catch (error) {
+    return jsonResponse_({
+      status: 'error',
+      message: error.message
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 // ─────────────────────────────────────────────
 //  Funciones de datos
 // ─────────────────────────────────────────────
