@@ -1,4 +1,22 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { userStore } from '@/store/store'
+import { clientesService } from '@/services/clientes.service'
+
+const store = userStore()
+const router = useRouter()
+
+const isAuth = computed(() => store.getIsAuth)
+const userName = computed(() => {
+  const user = store.getUser as { Nombre?: string } | null
+  return user?.Nombre ?? ''
+})
+
+const handleLogout = () => {
+  clientesService.logout()
+  router.push('/auth')
+}
 </script>
 
 <template>
@@ -6,7 +24,7 @@
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
       <!-- Logo / Brand -->
-      <div class="flex items-center gap-3">
+      <RouterLink to="/" class="flex items-center gap-3">
         <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 17h2a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5m14 0h-2a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h2" />
@@ -19,14 +37,34 @@
         <span class="text-lg font-bold tracking-tight text-gray-900">
           Cartel Coches
         </span>
+      </RouterLink>
+
+      <!-- Usuario autenticado -->
+      <div v-if="isAuth" class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+            {{ userName.charAt(0).toUpperCase() }}
+          </div>
+          <span class="text-sm font-medium text-gray-700">{{ userName }}</span>
+        </div>
+        <button
+          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+          @click="handleLogout"
+        >
+          Salir
+        </button>
       </div>
 
-      <!-- Autenticación -->
-      <div class="flex items-center gap-3">
-        <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
+      <!-- No autenticado -->
+      <div v-else class="flex items-center gap-3">
+        <RouterLink
+          to="/auth"
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        >
           Autenticarse
-        </button>
+        </RouterLink>
       </div>
     </div>
   </header>
 </template>
+
