@@ -154,7 +154,6 @@ class ClientesService {
             const res = await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(payload),
-                redirect: 'follow',
             });
 
             if (!res.ok) {

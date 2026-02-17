@@ -21,6 +21,7 @@ import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 import { ref, computed, onMounted } from 'vue';
 import { cochesService, type Coche } from '@/services';
 import BaseSelect from './BaseSelect.vue';
+import BaseInput from './BaseInput.vue';
 import BaseButton from './BaseButton.vue';
 import BaseProgressBar from './BaseProgressBar.vue';
 import EligibilityResult from './EligibilityResult.vue';
@@ -35,6 +36,7 @@ interface Selections {
     marca: string;
     modelo: string;
     anio: string;
+    matricula: string;
 }
 
 // --- Estado del Componente ---
@@ -56,6 +58,7 @@ const selections = ref<Selections>({
     marca: '',
     modelo: '',
     anio: '',
+    matricula: '',
 });
 
 /** 
@@ -111,7 +114,7 @@ const aniosOptions = computed(() => {
 });
 
 const progressPercentage = computed(() => {
-    return (step.value / 3) * 100;
+    return (step.value / 4) * 100;
 });
 
 // --- Métodos ---
@@ -138,7 +141,7 @@ const fetchData = async () => {
 };
 
 const nextStep = () => {
-    if (step.value < 3) step.value++;
+    if (step.value < 4) step.value++;
 };
 
 const prevStep = () => {
@@ -168,7 +171,9 @@ const handleSubmit = () => {
 const resetCheck = () => {
     checkStatus.value = 'idle';
     step.value = 1;
-    selections.value = { marca: '', modelo: '', anio: '' };
+    checkStatus.value = 'idle';
+    step.value = 1;
+    selections.value = { marca: '', modelo: '', anio: '', matricula: '' };
 };
 
 onMounted(() => {
@@ -241,6 +246,19 @@ onMounted(() => {
                 />
             </div>
 
+            <div v-if="step === 4" class="space-y-4 animate-fade-in">
+                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    Vehículo: <span class="font-semibold text-gray-800 dark:text-gray-200">{{ selections.marca }} {{ selections.modelo }} ({{ selections.anio }})</span>
+                </div>
+                <BaseInput
+                    id="matricula"
+                    label="Matrícula"
+                    v-model="selections.matricula"
+                    placeholder="Ej: 1234ABC"
+                    required
+                />
+            </div>
+
             <div class="flex justify-between pt-4 border-t border-gray-100 dark:border-gray-700 mt-8">
                 <BaseButton 
                     v-if="step > 1" 
@@ -252,17 +270,17 @@ onMounted(() => {
                 <div v-else></div>
 
                 <BaseButton 
-                    v-if="step < 3" 
+                    v-if="step < 4" 
                     @click="nextStep" 
-                    :disabled="step === 1 ? !selections.marca : !selections.modelo"
+                    :disabled="step === 1 ? !selections.marca : step === 2 ? !selections.modelo : !selections.anio"
                 >
                     Siguiente
                 </BaseButton>
 
                 <BaseButton 
-                    v-if="step === 3" 
+                    v-if="step === 4" 
                     @click="handleSubmit" 
-                    :disabled="!selections.anio"
+                    :disabled="!selections.matricula"
                     variant="primary"
                 >
                     Finalizar
