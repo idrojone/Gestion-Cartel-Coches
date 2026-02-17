@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import AuthForm from '@/components/AuthForm.vue'
 import Home from '../pages/Home.vue'
 
 const routes = [
@@ -7,6 +8,11 @@ const routes = [
         name: 'Home',
         component: Home,
     },
+    {
+        path: '/auth',
+        name: 'Auth',
+        component: AuthForm,
+    }
 ]
 
 export const router = createRouter({

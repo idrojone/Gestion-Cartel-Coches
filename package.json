@@ -10,6 +10,8 @@
     "mail:server": "tsx mail/server.ts"
   },
   "dependencies": {
+    "pinia": "^3.0.4",
+    "sweetalert2": "^11.26.18",
     "@heroicons/vue": "^2.2.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
