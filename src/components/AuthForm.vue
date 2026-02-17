@@ -15,6 +15,7 @@ const isLoading = ref(false)
 const errorMsg = ref('')
 const errorEmail = ref('')
 const errorDni = ref('')
+const errorPassword = ref('')
 
 const validarEmail = (email : string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -29,26 +30,28 @@ const validarDni = (dni : string) => {
 
 const loginForm = reactive({
   dni: '',
-  contacto: ''
+  password: ''
 })
 
 const registerForm = reactive({
   nombre: '',
   dni: '',
-  contacto: ''
+  contacto: '',
+  password: ''
 })
 
 // Limpiar errores al cambiar de modo
 watch(mode, () => {
   errorDni.value = ''
   errorEmail.value = ''
+  errorPassword.value = ''
   errorMsg.value = ''
 })
 
 const onLogin = async () => {
   // Resetear errores
   errorDni.value = ''
-  errorEmail.value = ''
+  errorPassword.value = ''
   errorMsg.value = ''
   
   let isValid = true
@@ -58,8 +61,8 @@ const onLogin = async () => {
     isValid = false
   }
   
-  if (!validarEmail(loginForm.contacto)) {
-    errorEmail.value = 'El formato del email no es válido'
+  if (loginForm.password.length < 5) {
+    errorPassword.value = 'La contraseña debe tener al menos 5 caracteres'
     isValid = false
   }
   
@@ -69,7 +72,7 @@ const onLogin = async () => {
 
   isLoading.value = true
   try {
-    const res = await clientesService.login(loginForm.dni, loginForm.contacto)
+    const res = await clientesService.login(loginForm.dni, loginForm.password)
     if (res.success) {
       await Swal.fire({
         icon: 'success',
@@ -102,6 +105,7 @@ const onRegister = async () => {
   // Resetear errores
   errorDni.value = ''
   errorEmail.value = ''
+  errorPassword.value = ''
   errorMsg.value = ''
   
   let isValid = true
@@ -120,6 +124,11 @@ const onRegister = async () => {
     errorEmail.value = 'El formato del email no es válido'
     isValid = false
   }
+
+  if (registerForm.password.length < 5) {
+    errorPassword.value = 'La contraseña debe tener al menos 5 caracteres'
+    isValid = false
+  }
   
   if (!isValid){
     return
@@ -127,7 +136,7 @@ const onRegister = async () => {
 
   isLoading.value = true
   try {
-    const res = await clientesService.register(registerForm.nombre, registerForm.dni, registerForm.contacto)
+    const res = await clientesService.register(registerForm.nombre, registerForm.dni, registerForm.contacto, registerForm.password)
     if (res.success) {
       await Swal.fire({
         icon: 'success',
@@ -218,12 +227,12 @@ const onRegister = async () => {
           />
 
           <BaseInput
-            id="login-contacto"
-            v-model="loginForm.contacto"
-            label="Contacto (Email)"
-            type="email"
-            placeholder="tu@email.com"
-            :error="errorEmail"
+            id="login-password"
+            v-model="loginForm.password"
+            label="Contraseña"
+            type="password"
+            placeholder="Tu contraseña"
+            :error="errorPassword"
             required
           />
 
@@ -265,6 +274,16 @@ const onRegister = async () => {
             type="email"
             placeholder="tu@email.com"
             :error="errorEmail"
+            required
+          />
+
+          <BaseInput
+            id="register-password"
+            v-model="registerForm.password"
+            label="Contraseña"
+            type="password"
+            placeholder="Mínimo 5 caracteres"
+            :error="errorPassword"
             required
           />
 

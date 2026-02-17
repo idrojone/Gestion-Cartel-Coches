@@ -61,6 +61,7 @@ function doGet(e) {
 }
 
 /**
+<<<<<<< HEAD
  * Punto de entrada principal para peticiones POST
  */
 function doPost(e) {
@@ -79,12 +80,35 @@ function doPost(e) {
 
     if (!sheetName) {
       throw new Error('Nombre de hoja no especificado.');
+=======
+ * Punto de entrada para peticiones POST
+ * Soporta action: 'insert' para añadir filas a una hoja
+ *
+ * Body esperado (JSON):
+ *   { "action": "insert", "sheet": "Clientes", "data": { "DNI": "12345678A", "Nombre": "Juan", "Contacto": "juan@mail.com" } }
+ */
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents);
+    const action = (body.action || '').toLowerCase();
+
+    if (action !== 'insert') {
+      return jsonResponse_({ status: 'error', message: 'Acción POST no soportada. Usa action: "insert".' });
+    }
+
+    const sheetName = body.sheet;
+    const data = body.data;
+
+    if (!sheetName || !data) {
+      return jsonResponse_({ status: 'error', message: 'Parámetros "sheet" y "data" son requeridos.' });
+>>>>>>> 02f1c8f95f65a57dc30653811fc52528360d5d68
     }
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(sheetName);
 
     if (!sheet) {
+<<<<<<< HEAD
       throw new Error(`La hoja "${sheetName}" no existe.`);
     }
 
@@ -137,6 +161,30 @@ function doPost(e) {
     return jsonResponse_({
       status: 'ok',
       ...result
+=======
+      return jsonResponse_({ status: 'error', message: 'Hoja "' + sheetName + '" no encontrada.' });
+    }
+
+    // Leer cabeceras de la primera fila
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function(h) {
+      return String(h).trim();
+    });
+
+    // Construir la fila nueva mapeando data a las columnas correctas
+    var newRow = headers.map(function(header) {
+      return data[header] !== undefined ? data[header] : '';
+    });
+
+    // Añadir la fila al final
+    sheet.appendRow(newRow);
+    var insertedRow = sheet.getLastRow();
+
+    return jsonResponse_({
+      status: 'ok',
+      message: 'Fila insertada correctamente.',
+      sheet: sheetName,
+      row: insertedRow
+>>>>>>> 02f1c8f95f65a57dc30653811fc52528360d5d68
     });
 
   } catch (error) {
@@ -144,8 +192,11 @@ function doPost(e) {
       status: 'error',
       message: error.message
     });
+<<<<<<< HEAD
   } finally {
     lock.releaseLock();
+=======
+>>>>>>> 02f1c8f95f65a57dc30653811fc52528360d5d68
   }
 }
 

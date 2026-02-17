@@ -10,6 +10,7 @@ export interface Cliente {
     DNI: string;
     Nombre: string;
     Contacto: string;
+    Password: string;
 }
 
 // ─── Tipos de respuesta para auth ────────────────────────────────
@@ -60,10 +61,10 @@ class ClientesService {
     // ─── AUTH ────────────────────────────────────────────────────
 
     /**
-     * Inicia sesión buscando un cliente por DNI y verificando el Contacto.
+     * Inicia sesión buscando un cliente por DNI y verificando la contraseña.
      * Si la autenticación es correcta, actualiza el store de Pinia.
      */
-    async login(dni: string, contacto: string): Promise<LoginResponse> {
+    async login(dni: string, password: string): Promise<LoginResponse> {
         try {
             const cliente = await this.findByDni(dni);
 
@@ -71,8 +72,9 @@ class ClientesService {
                 return { success: false, message: 'No se encontró un cliente con ese DNI.' };
             }
 
-            if (cliente.Contacto !== contacto) {
-                return { success: false, message: 'Las credenciales son incorrectas.' };
+
+            if (String(cliente.Password) !== String(password)) {
+                return { success: false, message: 'La contraseña es incorrecta.' };
             }
 
             // ── Actualizar estado en Pinia ──
@@ -92,11 +94,21 @@ class ClientesService {
     }
 
     /**
+     * Genera un ID de cliente único con formato CLI-XXXX
+     */
+    private async generateClientId(): Promise<string> {
+        const response = await this.getAll();
+        const count = response.data?.length ?? 0;
+        const nextId = count + 1;
+        return `CLI-${String(nextId).padStart(4, '0')}`;
+    }
+
+    /**
      * Registra un nuevo cliente en la hoja de Clientes.
-     * Comprueba que no exista ya un cliente con el mismo DNI.
+     * Genera un ID_Cliente único, comprueba DNI duplicado.
      * Si el registro es correcto, hace login automático.
      */
-    async register(nombre: string, dni: string, contacto: string): Promise<LoginResponse> {
+    async register(nombre: string, dni: string, contacto: string, password: string): Promise<LoginResponse> {
         try {
             // Comprobar si ya existe un cliente con ese DNI
             const existente = await this.findByDni(dni);
@@ -104,21 +116,29 @@ class ClientesService {
                 return { success: false, message: 'Ya existe un cliente con ese DNI.' };
             }
 
+            // Generar ID del cliente
+            const idCliente = await this.generateClientId();
+
             // Enviar datos al Web App por POST
             const url = API_CONFIG.BASE_URL;
             const payload = {
                 action: 'insert',
                 sheet: this.sheet,
                 data: {
+                    ID_Cliente: idCliente,
                     DNI: dni,
                     Nombre: nombre,
                     Contacto: contacto,
+                    Password: password,
                 },
             };
 
             const res = await fetch(url, {
                 method: 'POST',
+<<<<<<< HEAD
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+=======
+>>>>>>> 02f1c8f95f65a57dc30653811fc52528360d5d68
                 body: JSON.stringify(payload),
             });
 
@@ -126,7 +146,14 @@ class ClientesService {
                 throw new Error(`HTTP ${res.status}`);
             }
 
-            const result = await res.json();
+            const text = await res.text();
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (e) {
+                console.error('[ClientesService] Respuesta no es JSON:', text.substring(0, 2000));
+                return { success: false, message: 'Error en la respuesta del servidor.' };
+            }
 
             if (result.status !== 'ok') {
                 return { success: false, message: result.message || 'Error al registrar el cliente.' };
@@ -136,10 +163,11 @@ class ClientesService {
             const store = userStore();
             const nuevoCliente: Cliente = {
                 _row: result.row ?? 0,
-                ID_Cliente: result.data?.ID_Cliente ?? '',
+                ID_Cliente: idCliente,
                 DNI: dni,
                 Nombre: nombre,
                 Contacto: contacto,
+                Password: password,
             };
             store.setUser(nuevoCliente);
             store.setIsAuth(true);
