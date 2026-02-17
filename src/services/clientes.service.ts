@@ -135,10 +135,6 @@ class ClientesService {
 
             const res = await fetch(url, {
                 method: 'POST',
-<<<<<<< HEAD
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-=======
->>>>>>> 02f1c8f95f65a57dc30653811fc52528360d5d68
                 body: JSON.stringify(payload),
             });
 
