@@ -15,7 +15,7 @@ export interface Vehiculo {
 // ─── Servicio ────────────────────────────────────────────────────
 
 class VehiculosService {
-    private readonly sheet = API_CONFIG.SHEETS.VEHICULOS;
+    private readonly sheet = API_CONFIG.SHEETS.COCHES_COMPACT;
 
     /** Obtener todos los vehículos */
     async getAll(): Promise<ApiResponse<Vehiculo>> {

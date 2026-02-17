@@ -48,7 +48,9 @@ class ClientesService {
     /** Buscar cliente por DNI */
     async findByDni(dni: string): Promise<Cliente | undefined> {
         const response = await this.getAll();
-        return response.data?.find(c => c.DNI === dni);
+        return response.data?.find(c =>
+            c.DNI.trim().toUpperCase() === dni.trim().toUpperCase()
+        );
     }
 
     /** Buscar clientes por nombre (búsqueda parcial) */
@@ -116,7 +118,10 @@ class ClientesService {
             const clientsData = allClients.data ?? [];
 
             // 1. Comprobar DNI
-            const existenteDni = clientsData.find(c => c.DNI === dni);
+            // 1. Comprobar DNI (case-insensitive y sin espacios)
+            const existenteDni = clientsData.find(c =>
+                c.DNI.trim().toUpperCase() === dni.trim().toUpperCase()
+            );
             if (existenteDni) {
                 return { success: false, message: 'Ya existe un cliente con ese DNI.' };
             }

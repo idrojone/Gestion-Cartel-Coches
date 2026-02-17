@@ -1,4 +1,5 @@
 import { API_CONFIG } from './api.config';
+import { apiService, type ApiResponse } from './api.service';
 
 
 /**
@@ -28,11 +29,34 @@ class DashboardService {
     private readonly sheet = API_CONFIG.SHEETS.DASHBOARD;
 
     /**
+     * Obtiene todos los casos del Dashboard
+     */
+    async getAllCases(): Promise<ApiResponse<DashboardCase>> {
+        // Mapeamos la respuesta para que coincida con la interfaz (las columnas del excel tienen espacios)
+        return apiService.getSheetData<DashboardCase>(this.sheet);
+    }
+
+    /**
      * Crea un nuevo caso en el Dashboard.
      * @param data Datos del caso a guardar.
      */
     async createCase(data: DashboardCase): Promise<DashboardResponse> {
         try {
+            // 1. Verificar si la matrícula ya existe
+            if (data.Matricula) {
+                const allCases = await this.getAllCases();
+                const existingCase = allCases.data?.find((c: any) =>
+                    c.Matricula && c.Matricula.trim().toUpperCase() === data.Matricula?.trim().toUpperCase()
+                );
+
+                if (existingCase) {
+                    return {
+                        status: 'error',
+                        message: 'Esta matrícula ya ha sido registrada anteriormente.'
+                    };
+                }
+            }
+
             const url = API_CONFIG.BASE_URL;
 
             // Generar datos calculados en el cliente
