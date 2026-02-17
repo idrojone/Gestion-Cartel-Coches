@@ -9,7 +9,7 @@ export const API_CONFIG = {
      * URL base del Web App desplegado en Google Apps Script.
      * ⚠️  REEMPLAZA esta URL con la tuya real tras desplegar.
      */
-    BASE_URL: 'https://script.google.com/macros/s/AKfycbyd8Uz8mh_PFjsxSgnRJVBSO8POB_mPUQR-LwtsCvnzxm99iNo9g5zTI2wKJulLLo9YrA/exec',
+    BASE_URL: '/api',
 
     /** Nombres exactos de las hojas en el Spreadsheet */
     SHEETS: {

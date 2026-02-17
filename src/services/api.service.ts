@@ -44,7 +44,7 @@ class ApiService {
      * Construye la URL con query params
      */
     private buildUrl(params: Record<string, string>): string {
-        const url = new URL(this.baseUrl);
+        const url = new URL(this.baseUrl, window.location.origin);
         Object.entries(params).forEach(([key, value]) => {
             url.searchParams.append(key, value);
         });
