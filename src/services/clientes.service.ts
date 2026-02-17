@@ -11,6 +11,7 @@ export interface Cliente {
     Nombre: string;
     Contacto: string;
     Password: string;
+    FechaRegistro: string;
 }
 
 // ─── Tipos de respuesta para auth ────────────────────────────────
@@ -110,10 +111,26 @@ class ClientesService {
      */
     async register(nombre: string, dni: string, contacto: string, password: string): Promise<LoginResponse> {
         try {
-            // Comprobar si ya existe un cliente con ese DNI
-            const existente = await this.findByDni(dni);
-            if (existente) {
+            // Obtener todos los clientes una sola vez para las comprobaciones
+            const allClients = await this.getAll();
+            const clientsData = allClients.data ?? [];
+
+            // 1. Comprobar DNI
+            const existenteDni = clientsData.find(c => c.DNI === dni);
+            if (existenteDni) {
                 return { success: false, message: 'Ya existe un cliente con ese DNI.' };
+            }
+
+            // 2. Comprobar Nombre (case-insensitive)
+            const existenteNombre = clientsData.find(c => c.Nombre.toLowerCase() === nombre.toLowerCase());
+            if (existenteNombre) {
+                return { success: false, message: 'Ya existe un cliente con ese Nombre.' };
+            }
+
+            // 3. Comprobar Email (Contacto)
+            const existenteEmail = clientsData.find(c => c.Contacto.toLowerCase() === contacto.toLowerCase());
+            if (existenteEmail) {
+                return { success: false, message: 'Ya existe un cliente con ese Email.' };
             }
 
             // Generar ID del cliente
@@ -130,6 +147,7 @@ class ClientesService {
                     Nombre: nombre,
                     Contacto: contacto,
                     Password: password,
+                    FechaRegistro: new Date().toLocaleDateString('es-ES'),
                 },
             };
 
@@ -165,6 +183,7 @@ class ClientesService {
                 Nombre: nombre,
                 Contacto: contacto,
                 Password: password,
+                FechaRegistro: new Date().toLocaleDateString('es-ES'),
             };
             store.setUser(nuevoCliente);
             store.setIsAuth(true);
