@@ -152,7 +152,7 @@ const onRegister = async () => {
         showConfirmButton: false
       })
 
-      // Chequear si había un caso pendiente
+      // Chequear si había un caso pendiente ---> ver donde ponemos
       await checkPendingCase()
 
       router.push('/')
@@ -208,7 +208,12 @@ const checkPendingCase = async () => {
               });
               localStorage.removeItem('pendingCase');
           } else {
-              console.error('Error al guardar caso pendiente:', response);
+              // console.error('Error al guardar caso pendiente:', response);
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error al guardar caso pendiente',
+                  text: response.message
+              });
           }
 
       } catch (e) {
