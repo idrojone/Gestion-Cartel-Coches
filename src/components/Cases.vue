@@ -56,10 +56,10 @@ const formatDate = (dateString?: string) => {
 // Función simple para determinar color del estado
 const getStatusColor = (status: string) => {
     const s = status?.toUpperCase() || '';
-    if (s.includes('VIABLE')) return 'text-green-600 bg-green-50 border-green-200';
-    if (s.includes('NO VIABLE') || s.includes('FUERA')) return 'text-red-600 bg-red-50 border-red-200';
-    if (s.includes('PENDIENTE')) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-gray-600 bg-gray-50 border-gray-200';
+    if (s.includes('VIABLE')) return 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
+    if (s.includes('NO VIABLE') || s.includes('FUERA')) return 'text-red-600 bg-red-50 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
+    if (s.includes('PENDIENTE')) return 'text-yellow-600 bg-yellow-50 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800';
+    return 'text-gray-600 bg-gray-50 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
 };
 
 // ─── Ciclo de vida ──────────────────────────────────────────────────
@@ -74,14 +74,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
             
             <!-- Encabezado -->
             <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Mis Casos</h1>
-                    <p class="mt-2 text-gray-600">Revisa el estado de tus reclamaciones.</p>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mis Casos</h1>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">Revisa el estado de tus reclamaciones.</p>
                 </div>
                 <!-- Botón Nuevo Caso -->
                 <RouterLink 
@@ -94,12 +94,12 @@ onMounted(() => {
 
             <!-- Loading -->
             <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                <p class="mt-4 text-gray-500">Cargando tus expedientes...</p>
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+                <p class="mt-4 text-gray-500 dark:text-gray-400">Cargando tus expedientes...</p>
             </div>
 
             <!-- Error -->
-            <div v-else-if="error" class="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
+            <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-8">
                 <div class="flex">
                     <div class="shrink-0">
                         <!-- Icono Error -->
@@ -108,8 +108,8 @@ onMounted(() => {
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-red-700">{{ error }}</p>
-                        <button @click="fetchCases" class="mt-2 text-sm font-medium text-red-700 hover:text-red-600 underline">
+                        <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
+                        <button @click="fetchCases" class="mt-2 text-sm font-medium text-red-700 hover:text-red-600 underline dark:text-red-300 dark:hover:text-red-200">
                             Intentar de nuevo
                         </button>
                     </div>
@@ -120,12 +120,12 @@ onMounted(() => {
             <div v-else>
                 
                 <!-- Estado Vacío -->
-                <div v-if="!hasCases" class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div v-if="!hasCases" class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">No tienes casos registrados</h3>
-                    <p class="mt-1 text-sm text-gray-500">Comienza verificando la elegibilidad de tu vehículo.</p>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No tienes casos registrados</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comienza verificando la elegibilidad de tu vehículo.</p>
                 </div>
 
                 <!-- Grilla de Tarjetas -->
@@ -133,18 +133,18 @@ onMounted(() => {
                     <div 
                         v-for="(caso, index) in cases" 
                         :key="index"
-                        class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                        class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
                     >
                         <div class="px-4 py-5 sm:p-6">
                             
                             <!-- Cabecera Tarjeta: Marca y Modelo -->
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                                         {{ caso.Marca }} {{ caso.Modelo }}
                                     </h3>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        Matrícula: <span class="font-mono bg-gray-100 px-1 rounded">{{ caso.Matricula || 'N/A' }}</span>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Matrícula: <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ caso.Matricula || 'N/A' }}</span>
                                     </p>
                                 </div>
                                 <span 
@@ -156,18 +156,18 @@ onMounted(() => {
                             </div>
 
                             <!-- Detalles -->
-                            <div class="mt-4 border-t border-gray-100 pt-4 grid grid-cols-2 gap-4 text-sm">
+                            <div class="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4 grid grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <span class="block text-gray-500 text-xs uppercase tracking-wide">ID Caso</span>
-                                    <span class="block font-medium text-gray-900 mt-0.5">{{ caso.ID_Caso || 'Pendiente' }}</span>
+                                    <span class="block text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">ID Caso</span>
+                                    <span class="block font-medium text-gray-900 dark:text-white mt-0.5">{{ caso.ID_Caso || 'Pendiente' }}</span>
                                 </div>
                                 <div>
-                                    <span class="block text-gray-500 text-xs uppercase tracking-wide">Año Compra</span>
-                                    <span class="block font-medium text-gray-900 mt-0.5">{{ formatDate(caso.Anio) }}</span>
+                                    <span class="block text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Año Compra</span>
+                                    <span class="block font-medium text-gray-900 dark:text-white mt-0.5">{{ formatDate(caso.Anio) }}</span>
                                 </div>
                                 <div v-if="caso.Accion" class="col-span-2">
-                                    <span class="block text-gray-500 text-xs uppercase tracking-wide">Acción Recomendada</span>
-                                    <span class="block font-medium text-gray-900 mt-0.5">{{ caso.Accion }}</span>
+                                    <span class="block text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Acción Recomendada</span>
+                                    <span class="block font-medium text-gray-900 dark:text-white mt-0.5">{{ caso.Accion }}</span>
                                 </div>
                             </div>
 
