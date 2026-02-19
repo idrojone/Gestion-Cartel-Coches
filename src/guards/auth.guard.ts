@@ -7,7 +7,6 @@ export const authGuard = (
     next: NavigationGuardNext
 ) => {
     const store = userStore()
-
     // Si el usuario está autenticado, no puede acceder a /auth
     if (store.isAuth) {
         next({ name: 'Home' })
