@@ -1,15 +1,15 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { userStore } from '@/store/store'
 
-export const authGuard = (
+export const guestGuard = (
     to: RouteLocationNormalized,
     from: RouteLocationNormalized,
     next: NavigationGuardNext
 ) => {
     const store = userStore()
 
-    if (!store.getIsAuth) {
-        next({ name: 'Auth' })
+    if (store.getIsAuth) {
+        next({ name: 'Home' })
     } else {
         next()
     }

@@ -16,6 +16,7 @@ export interface DashboardCase {
     Accion: 'INICIAR RECLAMACIÓN' | 'ARCHIVAR' | string;
     ID_Cliente?: string;
     Matricula?: string;
+    ID_Caso: string;
 }
 
 export interface DashboardResponse {
@@ -32,8 +33,28 @@ class DashboardService {
      * Obtiene todos los casos del Dashboard
      */
     async getAllCases(): Promise<ApiResponse<DashboardCase>> {
-        // Mapeamos la respuesta para que coincida con la interfaz (las columnas del excel tienen espacios)
-        return apiService.getSheetData<DashboardCase>(this.sheet);
+        // Mapeamos la respuesta para que coincida con la interfaz
+        const response = await apiService.getSheetData<any>(this.sheet);
+        if (response.data) {
+            response.data = response.data.map((item: any) => ({
+                ...item,
+                ID_Caso: item['ID Caso'] || item.ID_Caso,
+                Estado: item['Estado Viabilidad'] || item.Estado,
+                Accion: item['Acción'] || item.Accion,
+                Anio: item['Fecha Compra (Est)'] ? String(item['Fecha Compra (Est)']).split('/').pop() : item.Anio
+            }));
+        }
+        return response as ApiResponse<DashboardCase>;
+    }
+
+    /**
+     * Obtiene los casos filtrados por DNI
+     * @param dni DNI del usuario a consultar
+     */
+    async getCasesByDni(dni: string): Promise<DashboardCase[]> {
+        const response = await this.getAllCases();
+        if (!response.data) return [];
+        return response.data.filter(c => c.DNI && c.DNI.trim().toUpperCase() === dni.trim().toUpperCase());
     }
 
     /**

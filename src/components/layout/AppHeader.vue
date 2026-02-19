@@ -42,6 +42,12 @@ const handleLogout = () => {
       <!-- Usuario autenticado -->
       <div v-if="isAuth" class="flex items-center gap-3">
         <div class="flex items-center gap-2">
+          <RouterLink 
+            to="/cases" 
+            class="mr-2 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
+          >
+            Ver mis casos
+          </RouterLink>
           <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
             {{ userName.charAt(0).toUpperCase() }}
           </div>
