@@ -20,13 +20,15 @@
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 import { ref, computed, onMounted } from 'vue';
 import { cochesService, type Coche } from '@/services';
-import BaseSelect from './BaseSelect.vue';
-import BaseInput from './BaseInput.vue';
 import BaseButton from './BaseButton.vue';
 import BaseProgressBar from './BaseProgressBar.vue';
 import EligibilityResult from './EligibilityResult.vue';
+import SelectionBrand from './vehicle/SelectionBrand.vue';
+import SelectionModel from './vehicle/SelectionModel.vue';
+import SelectionYear from './vehicle/SelectionYear.vue';
+import SelectionRegistration from './vehicle/SelectionRegistration.vue';
 
-
+// ... (types and state logic remains the same, except imports and template)
 
 /**
  * Interfaz para las selecciones del usuario en el formulario.
@@ -63,18 +65,11 @@ const selections = ref<Selections>({
 
 /** 
  * Estado de la comprobación de elegibilidad.
- * - 'idle': Estado inicial, formulario activo.
- * - 'checking': Simulando comprobación (loading).
- * - 'affected': El vehículo es elegible.
- * - 'not_affected': El vehículo no es elegible.
  */
 const checkStatus = ref<'idle' | 'checking' | 'affected' | 'not_affected'>('idle');
 
 // --- Propiedades Computadas ---
 
-/**
- * Obtiene la lista de marcas con su imagen, ordenadas alfabéticamente.
- */
 const marcasConImagen = computed(() => {
     return rawData.value
         .filter((row) => row.marca)
@@ -85,10 +80,6 @@ const marcasConImagen = computed(() => {
         .sort((a, b) => a.marca.localeCompare(b.marca));
 });
 
-/**
- * Obtiene los modelos correspondientes a la marca seleccionada.
- * Busca la fila de la marca y extrae las claves que empiezan por 'modelos/'.
- */
 const modelosOptions = computed(() => {
     if (!selections.value.marca) return [];
 
@@ -105,9 +96,6 @@ const modelosOptions = computed(() => {
     return models.sort();
 });
 
-/**
- * Genera el rango de años afectados (2006-2013) en orden descendente.
- */
 const aniosOptions = computed(() => {
     const years: number[] = [];
     for (let y = 2013; y >= 2006; y--) {
@@ -120,9 +108,6 @@ const progressPercentage = computed(() => {
     return (step.value / 4) * 100;
 });
 
-/**
- * Devuelve la URL del logo/imagen de la marca seleccionada.
- */
 const marcaImagen = computed(() => {
     if (!selections.value.marca) return null;
     const row = rawData.value.find((r) => r.marca === selections.value.marca);
@@ -131,9 +116,6 @@ const marcaImagen = computed(() => {
 
 // --- Métodos ---
 
-/**
- * Carga los datos de coches desde el servicio API al montar el componente.
- */
 const fetchData = async () => {
     loading.value = true;
     error.value = null;
@@ -160,11 +142,6 @@ const prevStep = () => {
     if (step.value > 1) step.value--;
 };
 
-/**
- * Maneja el envío final del formulario.
- * Simula una comprobación asíncrona y determina el estado final.
- * Lógica actual: Si el modelo NO es 'OTRO', se considera afectado.
- */
 const handleSubmit = () => {
     checkStatus.value = 'checking';
 
@@ -177,12 +154,7 @@ const handleSubmit = () => {
     }, 1500);
 };
 
-/**
- * Reinicia el formulario a su estado inicial para realizar una nueva comprobación.
- */
 const resetCheck = () => {
-    checkStatus.value = 'idle';
-    step.value = 1;
     checkStatus.value = 'idle';
     step.value = 1;
     selections.value = { marca: '', modelo: '', anio: '', matricula: '' };
@@ -195,7 +167,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+    <div class="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg transition-colors duration-300">
         <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Selecciona tu Vehículo</h2>
 
         <BaseProgressBar :percentage="progressPercentage" />
@@ -219,80 +191,37 @@ onMounted(() => {
 
         <div v-else class="space-y-6">
             
-            <div v-if="step === 1" class="animate-fade-in">
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Selecciona tu marca</p>
-                <div class="brand-grid">
-                    <button
-                        v-for="item in marcasConImagen"
-                        :key="item.marca"
-                        type="button"
-                        class="brand-card"
-                        :class="{ 'brand-card--active': selections.marca === item.marca }"
-                        @click="selections.marca = item.marca"
-                    >
-                        <img
-                            v-if="item.imagen"
-                            :src="item.imagen"
-                            :alt="item.marca"
-                            class="brand-card__logo"
-                        />
-                        <div v-else class="brand-card__placeholder">
-                            {{ item.marca.charAt(0) }}
-                        </div>
-                        <span class="brand-card__name">{{ item.marca }}</span>
-                    </button>
-                </div>
-            </div>
+            <SelectionBrand
+                v-if="step === 1"
+                v-model="selections.marca"
+                :brands="marcasConImagen"
+            />
 
-            <div v-if="step === 2" class="space-y-4 animate-fade-in">
-                <div class="flex items-center gap-3 mb-2">
-                    <img v-if="marcaImagen" :src="marcaImagen" :alt="selections.marca" class="brand-logo-sm" />
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        Marca seleccionada: <span class="font-semibold text-gray-800 dark:text-gray-200">{{ selections.marca }}</span>
-                    </span>
-                </div>
-                <BaseSelect
-                    id="modelo"
-                    label="Modelo"
-                    v-model="selections.modelo"
-                    :options="modelosOptions"
-                    placeholder="Selecciona un modelo"
-                    required
-                />
-            </div>
+            <SelectionModel
+                v-if="step === 2"
+                v-model="selections.modelo"
+                :options="modelosOptions"
+                :marca="selections.marca"
+                :marcaImagen="marcaImagen"
+            />
 
-            <div v-if="step === 3" class="space-y-4 animate-fade-in">
-                <div class="flex items-center gap-3 mb-2">
-                    <img v-if="marcaImagen" :src="marcaImagen" :alt="selections.marca" class="brand-logo-sm" />
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        Vehículo: <span class="font-semibold text-gray-800 dark:text-gray-200">{{ selections.marca }} {{ selections.modelo }}</span>
-                    </span>
-                </div>
-                <BaseSelect
-                    id="anio"
-                    label="Año de Matriculación"
-                    v-model="selections.anio"
-                    :options="aniosOptions"
-                    placeholder="Selecciona el año"
-                    required
-                />
-            </div>
+            <SelectionYear
+                v-if="step === 3"
+                v-model="selections.anio"
+                :options="aniosOptions"
+                :marca="selections.marca"
+                :modelo="selections.modelo"
+                :marcaImagen="marcaImagen"
+            />
 
-            <div v-if="step === 4" class="space-y-4 animate-fade-in">
-                <div class="flex items-center gap-3 mb-2">
-                    <img v-if="marcaImagen" :src="marcaImagen" :alt="selections.marca" class="brand-logo-sm" />
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        Vehículo: <span class="font-semibold text-gray-800 dark:text-gray-200">{{ selections.marca }} {{ selections.modelo }} ({{ selections.anio }})</span>
-                    </span>
-                </div>
-                <BaseInput
-                    id="matricula"
-                    label="Matrícula"
-                    v-model="selections.matricula"
-                    placeholder="Ej: 1234ABC"
-                    required
-                />
-            </div>
+            <SelectionRegistration
+                v-if="step === 4"
+                v-model="selections.matricula"
+                :marca="selections.marca"
+                :modelo="selections.modelo"
+                :anio="selections.anio"
+                :marcaImagen="marcaImagen"
+            />
 
             <div class="flex justify-between pt-4 border-t border-gray-100 dark:border-gray-700 mt-8">
                 <BaseButton 
@@ -326,99 +255,5 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Cuadrícula de marcas ───────────────────────────────── */
-.brand-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 12px;
-}
-
-.brand-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 6px;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    background: #f9fafb;
-    cursor: pointer;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease, background 0.18s ease;
-}
-
-:global(.dark) .brand-card {
-    background: #1f2937;
-}
-
-.brand-card:hover {
-    border-color: #6366f1;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
-    transform: translateY(-2px);
-}
-
-.brand-card--active {
-    border-color: #6366f1;
-    background: #eef2ff;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-}
-
-:global(.dark) .brand-card--active {
-    background: #312e81;
-}
-
-.brand-card__logo {
-    height: 52px;
-    width: 100%;
-    object-fit: contain;
-}
-
-.brand-card__placeholder {
-    height: 52px;
-    width: 52px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #6b7280;
-}
-
-.brand-card__name {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-align: center;
-    color: #374151;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-:global(.dark) .brand-card__name {
-    color: #d1d5db;
-}
-
-/* ── Logo pequeño en resúmenes de contexto (pasos 2-4) ── */
-.brand-logo-sm {
-    height: 36px;
-    max-width: 80px;
-    object-fit: contain;
-    border-radius: 6px;
-    padding: 3px;
-    background: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-}
+/* Las animaciones y estilos específicos ahora están en los subcomponentes */
 </style>

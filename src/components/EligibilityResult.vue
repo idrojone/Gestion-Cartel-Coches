@@ -17,8 +17,9 @@ import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { dashboardService } from '@/services/dashboard.service';
 import { userStore } from '@/store/store';
-import BaseButton from './BaseButton.vue';
-import { ArrowPathIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/20/solid'
+import EligibilityChecking from './eligibility/EligibilityChecking.vue';
+import EligibilityAffected from './eligibility/EligibilityAffected.vue';
+import EligibilityNotAffected from './eligibility/EligibilityNotAffected.vue';
 
 /**
  * Propiedades del componente.
@@ -49,6 +50,14 @@ const emit = defineEmits<{
 const router = useRouter();
 const store = userStore();
 const isAuth = computed(() => store.getIsAuth);
+
+const actionLabel = computed(() => {
+    if (props.status === 'affected') {
+        return isAuth.value ? 'Guardar' : 'Guardar y Calcular otra vez';
+    } else { // not_affected
+        return isAuth.value ? 'Guardar' : 'Guardar Resultado';
+    }
+});
 
 const handleAction = async () => {
     const currentUser = store.getUser;
@@ -114,53 +123,23 @@ const saveCase = async (data: any) => {
 <template>
     <div class="text-center py-8 animate-fade-in">
         
-        <!-- Checking State -->
-        <div v-if="status === 'checking'" class="flex flex-col items-center space-y-4">
-            <ArrowPathIcon class="animate-spin h-12 w-12 text-indigo-600" />
-            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">Comprobando si tu vehículo está afectado...</p>
-        </div>
+        <EligibilityChecking v-if="status === 'checking'" />
 
-        <!-- Affected State -->
-        <div v-else-if="status === 'affected'" class="flex flex-col items-center space-y-6">
-            <div class="rounded-full bg-green-100 p-3 dark:bg-green-900/30">
-                <CheckCircleIcon class="h-12 w-12 text-green-600 dark:text-green-400" />
-            </div>
-            
-            <div class="space-y-2">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">¡Tu vehículo está afectado!</h3>
-                <p class="text-gray-600 dark:text-gray-300">
-                    El <strong>{{ vehicle.marca }} {{ vehicle.modelo }}</strong> del año <strong>{{ vehicle.anio }}</strong> forma parte del cártel de coches.
-                </p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Tienes derecho a reclamar una indemnización.
-                </p>
-            </div>
+        <EligibilityAffected 
+            v-else-if="status === 'affected'"
+            :vehicle="vehicle"
+            :actionLabel="actionLabel"
+            @action="handleAction"
+            @reset="$emit('reset')"
+        />
 
-            <BaseButton @click="handleAction" variant="primary">
-                {{ isAuth ? 'Guardar' : 'Guardar y Calcular otra vez' }}
-            </BaseButton>
-            <BaseButton @click="$emit('reset')" variant="secondary" class="mt-2">Volver al inicio</BaseButton>
-        </div>
-
-        <!-- Not Affected State -->
-        <div v-else-if="status === 'not_affected'" class="flex flex-col items-center space-y-6">
-            <div class="rounded-full bg-red-100 p-3 dark:bg-red-900/30">
-                <XCircleIcon class="h-12 w-12 text-red-600 dark:text-red-400" />
-            </div>
-            
-            <div class="space-y-2">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">No hemos encontrado coincidencia</h3>
-                <p class="text-gray-600 dark:text-gray-300">
-                    El <strong>{{ vehicle.marca }} {{ vehicle.modelo }}</strong> no parece estar en la lista principal de afectados en este momento.
-                </p>
-            </div>
-
-            <!-- Esto es te que cambiar per un botó al login si no essta loggejat -->
-            <BaseButton @click="handleAction" variant="primary">
-                {{ isAuth ? 'Guardar' : 'Guardar Resultado' }}
-            </BaseButton>
-            <BaseButton @click="$emit('reset')" variant="secondary" class="mt-2">Volver al inicio</BaseButton>
-        </div>
+        <EligibilityNotAffected
+            v-else-if="status === 'not_affected'"
+            :vehicle="vehicle"
+            :actionLabel="actionLabel"
+            @action="handleAction"
+            @reset="$emit('reset')"
+        />
     </div>
 </template>
 
