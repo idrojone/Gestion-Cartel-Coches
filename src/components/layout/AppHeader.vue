@@ -13,6 +13,11 @@ const userName = computed(() => {
   return user?.Nombre ?? ''
 })
 
+const isAdmin = computed(() => {
+  const user = store.getUser as { Nombre?: string } | null
+  return user?.Nombre === 'admin'
+})
+
 const handleLogout = () => {
   clientesService.logout()
   router.push('/auth')
@@ -42,6 +47,13 @@ const handleLogout = () => {
       <!-- Usuario autenticado -->
       <div v-if="isAuth" class="flex items-center gap-3">
         <div class="flex items-center gap-2">
+          <RouterLink 
+            v-if="isAdmin"
+            to="/dashboard" 
+            class="mr-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
+          >
+            Dashboard
+          </RouterLink>
           <RouterLink 
             to="/cases" 
             class="mr-2 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
