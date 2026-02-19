@@ -229,7 +229,7 @@ const checkPendingCase = async () => {
     <div class="w-full max-w-md">
 
       <!-- Card -->
-      <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+      <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-700 dark:bg-gray-800">
 
         <!-- Logo -->
         <div class="mb-6 flex flex-col items-center gap-2">
@@ -242,16 +242,16 @@ const checkPendingCase = async () => {
               <circle cx="16.5" cy="15.5" r="1.5" />
             </svg>
           </div>
-          <h1 class="text-xl font-bold text-gray-900">Cartel Coches</h1>
+          <h1 class="text-xl font-bold text-gray-900 dark:text-white">Cartel Coches</h1>
         </div>
 
         <!-- Tabs -->
-        <div class="mb-6 flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+        <div class="mb-6 flex rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-700">
           <button
             class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all"
             :class="mode === 'login'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'"
+              ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-white'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'"
             @click="mode = 'login'"
           >
             Iniciar Sesión
@@ -259,8 +259,8 @@ const checkPendingCase = async () => {
           <button
             class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all"
             :class="mode === 'register'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'"
+              ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-white'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'"
             @click="mode = 'register'"
           >
             Registrarse
@@ -268,7 +268,7 @@ const checkPendingCase = async () => {
         </div>
 
         <!-- Error Message Global -->
-        <div v-if="errorMsg" class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700">
+        <div v-if="errorMsg" class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
           {{ errorMsg }}
         </div>
 
@@ -297,9 +297,9 @@ const checkPendingCase = async () => {
             Iniciar Sesión
           </BaseButton>
 
-          <p class="text-center text-sm text-gray-500">
+          <p class="text-center text-sm text-gray-500 dark:text-gray-400">
             ¿No tienes cuenta?
-            <button type="button" class="font-medium text-blue-600 hover:text-blue-700" @click="mode = 'register'">
+            <button type="button" class="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" @click="mode = 'register'">
               Regístrate
             </button>
           </p>
@@ -348,9 +348,9 @@ const checkPendingCase = async () => {
             Registrarse
           </BaseButton>
 
-          <p class="text-center text-sm text-gray-500">
+          <p class="text-center text-sm text-gray-500 dark:text-gray-400">
             ¿Ya tienes cuenta?
-            <button type="button" class="font-medium text-blue-600 hover:text-blue-700" @click="mode = 'login'">
+            <button type="button" class="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" @click="mode = 'login'">
               Inicia sesión
             </button>
           </p>

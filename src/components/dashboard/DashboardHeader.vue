@@ -10,7 +10,7 @@ defineEmits<{
 
 <template>
     <div class="flex justify-between items-center mb-5">
-        <h1 class="text-2xl font-bold text-gray-800">Gestión de Reclamaciones</h1>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Gestión de Reclamaciones</h1>
         <button 
             @click="$emit('refresh')" 
             :disabled="loading" 
