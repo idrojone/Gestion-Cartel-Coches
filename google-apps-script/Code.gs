@@ -63,19 +63,24 @@ function doGet(e) {
 /**
  * Punto de entrada para peticiones POST
  * Soporta action: 'insert' para añadir filas a una hoja
+ * Soporta action: 'update' para modificar filas existentes
  *
- * Body esperado (JSON):
- *   { "action": "insert", "sheet": "Clientes", "data": { "DNI": "12345678A", "Nombre": "Juan", "Contacto": "juan@mail.com" } }
+ * Body esperado (JSON) para insert:
+ *   { "action": "insert", "sheet": "Clientes", "data": { "DNI": "12345678A", ... } }
+ *
+ * Body esperado (JSON) para update:
+ *   { 
+ *     "action": "update", 
+ *     "sheet": "Dashboard", 
+ *     "row": 123,  // Opcional si se usa match
+ *     "match": { "col": "ID Caso", "val": "V-123456" }, // Opcional si se usa row
+ *     "data": { "Estado Viabilidad": "✅ VIABLE" } 
+ *   }
  */
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
     const action = (body.action || '').toLowerCase();
-
-    if (action !== 'insert') {
-      return jsonResponse_({ status: 'error', message: 'Acción POST no soportada. Usa action: "insert".' });
-    }
-
     const sheetName = body.sheet;
     const data = body.data;
 
@@ -95,21 +100,87 @@ function doPost(e) {
       return String(h).trim();
     });
 
-    // Construir la fila nueva mapeando data a las columnas correctas
-    var newRow = headers.map(function(header) {
-      return data[header] !== undefined ? data[header] : '';
-    });
+    // ─────────────────────────────────────────────
+    //  INSERT
+    // ─────────────────────────────────────────────
+    if (action === 'insert') {
+      // Construir la fila nueva mapeando data a las columnas correctas
+      var newRow = headers.map(function(header) {
+        return data[header] !== undefined ? data[header] : '';
+      });
 
-    // Añadir la fila al final
-    sheet.appendRow(newRow);
-    var insertedRow = sheet.getLastRow();
+      // Añadir la fila al final
+      sheet.appendRow(newRow);
+      var insertedRow = sheet.getLastRow();
 
-    return jsonResponse_({
-      status: 'ok',
-      message: 'Fila insertada correctamente.',
-      sheet: sheetName,
-      row: insertedRow
-    });
+      return jsonResponse_({
+        status: 'ok',
+        message: 'Fila insertada correctamente.',
+        sheet: sheetName,
+        row: insertedRow
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    //  UPDATE
+    // ─────────────────────────────────────────────
+    else if (action === 'update') {
+      let rowIndex = -1;
+
+      // Opción A: Actualizar por número de fila directo
+      if (body.row) {
+        rowIndex = parseInt(body.row, 10);
+      }
+      // Opción B: Buscar fila por columna (ej: ID Caso)
+      else if (body.match && body.match.col && body.match.val) {
+        const colIndex = headers.indexOf(body.match.col);
+        if (colIndex === -1) {
+          return jsonResponse_({ status: 'error', message: `Columna "${body.match.col}" no encontrada en encabezados.` });
+        }
+        
+        // Leer toda la columna para buscar (esto podría optimizarse pero es simple)
+        // DataRange empieza en fila 1, pero values[0] es fila 1.
+        // Queremos buscar a partir de fila 2 (índice 1 en array).
+        const allData = sheet.getDataRange().getValues();
+        // findIndex devuelve índice en el array. La fila en sheet es índice + 1.
+        
+        const matchVal = String(body.match.val).trim().toUpperCase();
+
+        const foundIdx = allData.findIndex((row, idx) => {
+          if (idx === 0) return false; // saltar cabecera
+          return String(row[colIndex]).trim().toUpperCase() === matchVal;
+        });
+
+        if (foundIdx !== -1) {
+          rowIndex = foundIdx + 1; // Convertir a 1-based del Sheet
+        }
+      }
+
+      if (rowIndex < 2) { // 1 es cabecera, así que mínimo 2
+        return jsonResponse_({ status: 'error', message: 'No se encontró la fila para actualizar.' });
+      }
+
+      // Actualizar celdas específicas
+      // Recorremos los keys de 'data' y actualizamos solo esos
+      Object.keys(data).forEach(key => {
+        const colIdx = headers.indexOf(key);
+        if (colIdx !== -1) {
+          // getRange(row, col) -> col es 1-based
+          sheet.getRange(rowIndex, colIdx + 1).setValue(data[key]);
+        }
+      });
+
+      return jsonResponse_({
+        status: 'ok',
+        message: 'Fila actualizada correctamente.',
+        sheet: sheetName,
+        row: rowIndex
+      });
+    }
+
+    else {
+      return jsonResponse_({ status: 'error', message: 'Acción POST no soportada: ' + action });
+    }
 
   } catch (error) {
     return jsonResponse_({
@@ -186,7 +257,7 @@ function getSheetData_(sheetName, rowIndex) {
 
   // Convertir cada fila en un objeto { cabecera: valor }
   const records = rows.map((row, index) => {
-    const obj = { _row: index + 1 };
+    const obj = { _row: index + 2 }; // index 0 es la primera fila de datos (Excel row 2)
     headers.forEach((header, i) => {
       const key = header || `col_${i}`;
       let value = row[i];
@@ -247,7 +318,7 @@ function getAllData_() {
     const rows = data.slice(1);
 
     const records = rows.map((row, index) => {
-      const obj = { _row: index + 1 };
+      const obj = { _row: index + 2 };
       headers.forEach((header, i) => {
         const key = header || `col_${i}`;
         let value = row[i];

@@ -20,7 +20,7 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
+  <header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-800">
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
       <!-- Logo / Brand -->
@@ -34,7 +34,7 @@ const handleLogout = () => {
             <circle cx="16.5" cy="15.5" r="1.5" />
           </svg>
         </div>
-        <span class="text-lg font-bold tracking-tight text-gray-900">
+        <span class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
           F*** Cartel Coches
         </span>
       </RouterLink>
@@ -51,10 +51,10 @@ const handleLogout = () => {
           <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
             {{ userName.charAt(0).toUpperCase() }}
           </div>
-          <span class="text-sm font-medium text-gray-700">{{ userName }}</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ userName }}</span>
         </div>
         <button
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
           @click="handleLogout"
         >
           Salir
