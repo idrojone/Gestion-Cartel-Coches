@@ -47,6 +47,7 @@ const handleLogout = () => {
       <!-- Usuario autenticado -->
       <div v-if="isAuth" class="flex items-center gap-3">
         <div class="flex items-center gap-2">
+
           <RouterLink 
             v-if="isAdmin"
             to="/dashboard" 
@@ -54,7 +55,9 @@ const handleLogout = () => {
           >
             Dashboard
           </RouterLink>
-          <RouterLink 
+
+          <RouterLink
+            v-if="!isAdmin"
             to="/cases" 
             class="mr-2 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
           >
