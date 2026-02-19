@@ -6,6 +6,8 @@ import { API_CONFIG } from './api.config';
 export interface Coche {
     _row: number;
     marca: string;
+    /** URL del logo/imagen de la marca */
+    imagen: string;
     // Las claves dinámicas como 'modelos/...'
     [key: string]: string | number;
 }
